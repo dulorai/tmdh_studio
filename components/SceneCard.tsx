@@ -1,5 +1,6 @@
+
 import React from 'react';
-import type { Scene, Character, GeneratedShot } from '../types';
+import type { Scene, Character, GeneratedShot, AspectRatio } from '../types';
 import Loader from './Loader';
 import { SparklesIcon, RetryIcon, CheckIcon, DownloadIcon } from './icons';
 import { SHOT_TYPES } from '../types';
@@ -14,6 +15,7 @@ interface SceneCardProps {
   updateScene: (sceneId: string, updatedFields: Partial<Scene>) => void;
   currentlyGeneratingShot: { sceneId: string; shotType: string; } | null;
   setHoverPreview: (preview: { imageUrl: string; x: number; y: number } | null) => void;
+  aspectRatio: AspectRatio;
 }
 
 const ShotDisplay: React.FC<{
@@ -24,10 +26,13 @@ const ShotDisplay: React.FC<{
     isGenerating: boolean;
     setHoverPreview: (preview: { imageUrl: string; x: number; y: number } | null) => void;
     sceneNumber: number;
-}> = ({ shot, sceneId, shotType, onRetry, isGenerating, setHoverPreview, sceneNumber }) => {
+    aspectRatio: AspectRatio;
+}> = ({ shot, sceneId, shotType, onRetry, isGenerating, setHoverPreview, sceneNumber, aspectRatio }) => {
+    const aspectRatioClass = aspectRatio === '16:9' ? 'aspect-video' : aspectRatio === '9:16' ? 'aspect-[9/16]' : 'aspect-square';
+
     if (isGenerating) {
         return (
-            <div className="w-full aspect-square flex flex-col items-center justify-center p-2 bg-yellow-200 border-2 border-yellow-500 animate-pulse">
+            <div className={`w-full ${aspectRatioClass} flex flex-col items-center justify-center p-2 bg-yellow-200 border-2 border-yellow-500 animate-pulse`}>
                 <Loader small />
                 <p className="text-center font-bold text-yellow-800 text-xs mt-1">Working...</p>
             </div>
@@ -36,7 +41,7 @@ const ShotDisplay: React.FC<{
     if (shot?.error) {
         const displayError = shot.error.length > 50 ? shot.error.substring(0, 47) + '...' : shot.error;
         return (
-            <div className="w-full aspect-square flex flex-col items-center justify-center p-2 bg-red-200 border-2 border-red-500" title={shot.error}>
+            <div className={`w-full ${aspectRatioClass} flex flex-col items-center justify-center p-2 bg-red-200 border-2 border-red-500`} title={shot.error}>
                 <p className="text-center font-bold text-red-700 text-sm">Failed</p>
                 <p className="text-center text-red-700 text-xs mt-1 px-1 break-words">{displayError}</p>
                 <button onClick={() => onRetry(sceneId, shot.shotType)} className="mt-auto bg-red-500 hover:bg-red-600 text-white p-1 rounded-full border-2 border-black">
@@ -49,12 +54,12 @@ const ShotDisplay: React.FC<{
         const downloadFilename = `scene-${sceneNumber}-${shot.shotType.replace(/\s+/g, '_')}.png`;
         return (
             <div
-                className="relative group w-full aspect-square"
+                className={`relative group w-full ${aspectRatioClass}`}
                 onMouseEnter={(e) => setHoverPreview({ imageUrl: shot.imageUrl, x: e.clientX, y: e.clientY })}
                 onMouseMove={(e) => setHoverPreview({ imageUrl: shot.imageUrl, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setHoverPreview(null)}
             >
-                <img src={shot.imageUrl} alt={shot.shotType} className="w-full aspect-square object-cover" />
+                <img src={shot.imageUrl} alt={shot.shotType} className={`w-full ${aspectRatioClass} object-cover`} />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
                     <a
                         href={shot.imageUrl}
@@ -70,7 +75,7 @@ const ShotDisplay: React.FC<{
         );
     }
     return (
-        <div className="w-full aspect-square flex items-center justify-center p-2 bg-gray-200 border-2 border-black">
+        <div className={`w-full ${aspectRatioClass} flex items-center justify-center p-2 bg-gray-200 border-2 border-black`}>
              <p className="text-center font-bold text-gray-500">{shotType}</p>
         </div>
     );
@@ -100,7 +105,10 @@ const CharacterSelector: React.FC<{
     onToggle: (characterId: string) => void;
 }> = ({ allCharacters, selectedCharacterIds, onToggle }) => (
     <div>
-        <label className="block text-xl font-bold mb-2">Characters in this Scene:</label>
+        <div className="flex justify-between items-center mb-2">
+             <label className="block text-xl font-bold">Characters:</label>
+             <span className="text-sm font-bold text-gray-600 uppercase tracking-wider">(Select all that apply)</span>
+        </div>
         {allCharacters.length > 0 ? (
             <div className="flex flex-wrap gap-4">
                 {allCharacters.map(char => {
@@ -133,7 +141,7 @@ const CharacterSelector: React.FC<{
 );
 
 
-const SceneCard: React.FC<SceneCardProps> = ({ scene, sceneNumber, allCharacters, addToQueue, retryShot, updateScene, currentlyGeneratingShot, setHoverPreview }) => {
+const SceneCard: React.FC<SceneCardProps> = ({ scene, sceneNumber, allCharacters, addToQueue, retryShot, updateScene, currentlyGeneratingShot, setHoverPreview, aspectRatio }) => {
 
   const handleGenerate = () => {
     addToQueue(scene.id);
@@ -181,7 +189,7 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, sceneNumber, allCharacters
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      }, index * 300); // 300ms delay between each download
+      }, index * 1000); // 1000ms delay between each download
     });
   };
 
@@ -247,6 +255,7 @@ const SceneCard: React.FC<SceneCardProps> = ({ scene, sceneNumber, allCharacters
                 isGenerating={isCurrentlyGenerating}
                 setHoverPreview={setHoverPreview}
                 sceneNumber={sceneNumber}
+                aspectRatio={aspectRatio}
              />;
         })}
       </div>

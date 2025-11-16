@@ -1,3 +1,4 @@
+
 // Fix: Defined all necessary types and removed component implementations.
 export interface Character {
   id: string;
@@ -30,14 +31,31 @@ export interface Scene {
   generationStatus: GenerationStatus;
 }
 
+export type AspectRatio = '1:1' | '16:9' | '9:16';
+
 export const SHOT_TYPES = [
   'Full Shot',
   'Medium Shot',
-  'Close-up Shot',
+  'Ultra Close-up Shot',
   'Over the Shoulder Shot',
   'Low Angle Shot',
-  'Dutch Shot',
+  'Object Close-up',
   'Aerial View',
   'Insert Shot',
   'Establishing Shot',
+];
+
+export const PRESET_STYLES = [
+  'Cinematic',
+  'Anime',
+  '3D Render',
+  'Noir',
+  'Vaporwave',
+  'Comic Book',
+  'Fantasy Art',
+  'Cyberpunk',
+  'Minimalist',
+  'Vintage Film',
+  'Watercolor',
+  'Gothic',
 ];

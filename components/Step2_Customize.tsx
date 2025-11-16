@@ -1,7 +1,8 @@
+
 import React, { useState } from 'react';
-import type { Scene, Character } from '../types';
+import type { Scene, Character, AspectRatio } from '../types';
 import SceneCard from './SceneCard';
-import { ArrowLeftIcon, MinusCircleIcon, FilmIcon } from './icons';
+import { ArrowLeftIcon, MinusCircleIcon, FilmIcon, ZipIcon } from './icons';
 
 interface Step2_CustomizeProps {
   scenes: Scene[];
@@ -20,12 +21,16 @@ interface Step2_CustomizeProps {
   clearQueue: () => void;
   setHoverPreview: (preview: { imageUrl: string; x: number; y: number; } | null) => void;
   onGenerateVideo: () => void;
+  onDownloadAllScenes: () => void;
+  actionStatus: string;
+  aspectRatio: AspectRatio;
 }
 
 const Step2_Customize: React.FC<Step2_CustomizeProps> = ({ 
   scenes, onBack, allCharacters, stylePrompt, queue, addToQueue, retryShot, 
   updateScene, isQueuePaused, pauseMessage, currentlyGeneratingShot, 
-  isProcessing, reorderScenes, clearQueue, setHoverPreview, onGenerateVideo
+  isProcessing, reorderScenes, clearQueue, setHoverPreview, onGenerateVideo,
+  onDownloadAllScenes, actionStatus, aspectRatio
 }) => {
   const [draggedSceneId, setDraggedSceneId] = useState<string | null>(null);
   const [dragOverSceneId, setDragOverSceneId] = useState<string | null>(null);
@@ -34,7 +39,7 @@ const Step2_Customize: React.FC<Step2_CustomizeProps> = ({
     return scenes.findIndex(s => s.id === sceneId) + 1;
   };
 
-  const canGenerateVideo = scenes.some(s => s.generationStatus === 'completed' || s.generatedShots.some(shot => shot && !shot.error));
+  const hasDownloadableShots = scenes.some(s => s.generationStatus === 'completed' || s.generatedShots.some(shot => shot && !shot.error));
 
   return (
     <div className="animate-fade-in">
@@ -47,16 +52,33 @@ const Step2_Customize: React.FC<Step2_CustomizeProps> = ({
           Back
         </button>
         <h2 className="text-3xl md:text-5xl font-bold text-center order-first md:order-none">Customize Your Scenes</h2>
-        <button
-          onClick={onGenerateVideo}
-          disabled={!canGenerateVideo}
-          className="flex-shrink-0 flex items-center gap-2 bg-blue-500 text-white text-xl border-4 border-black py-2 px-4 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none transition-all transform hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_#000] active:translate-y-[2px] active:shadow-none"
-        >
-            <FilmIcon className="h-6 w-6" />
-            Generate Video
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onDownloadAllScenes}
+            disabled={!hasDownloadableShots || isProcessing}
+            className="flex-shrink-0 flex items-center gap-2 bg-purple-500 text-white text-xl border-4 border-black py-2 px-4 hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none transition-all transform hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_#000] active:translate-y-[2px] active:shadow-none"
+            title="Download all generated shots as a ZIP file"
+          >
+              <ZipIcon className="h-6 w-6" />
+              Download All
+          </button>
+          <button
+            onClick={onGenerateVideo}
+            disabled={!hasDownloadableShots || isProcessing}
+            className="flex-shrink-0 flex items-center gap-2 bg-blue-500 text-white text-xl border-4 border-black py-2 px-4 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none transition-all transform hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_#000] active:translate-y-[2px] active:shadow-none"
+          >
+              <FilmIcon className="h-6 w-6" />
+              Generate Video
+          </button>
+        </div>
       </div>
       
+      {actionStatus && (
+        <div className="bg-purple-200 text-black p-4 mb-8 border-4 border-black shadow-[8px_8px_0px_#000]">
+          <p className="text-xl text-center animate-pulse font-bold">{actionStatus}</p>
+        </div>
+      )}
+
       {isQueuePaused && pauseMessage && (
         <div className="bg-orange-500 text-white p-4 mb-8 border-4 border-black shadow-[8px_8px_0px_#000]">
           <p className="text-xl text-center animate-pulse font-bold">{pauseMessage}</p>
@@ -145,6 +167,7 @@ const Step2_Customize: React.FC<Step2_CustomizeProps> = ({
               updateScene={updateScene}
               currentlyGeneratingShot={currentlyGeneratingShot}
               setHoverPreview={setHoverPreview}
+              aspectRatio={aspectRatio}
             />
           </div>
         ))}

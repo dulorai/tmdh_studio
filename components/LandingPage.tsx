@@ -8,10 +8,10 @@ interface LandingPageProps {
 }
 
 const VIDEOS = [
-  { type: 'youtube', id: 'aqz-KE-bpKQ', title: 'Inspirational Video 1' },
-  { type: 'youtube', id: 'eRsGyueVLvQ', title: 'Inspirational Video 2' },
-  { type: 'youtube', id: 'WjqiU5FgsYc', title: 'Inspirational Video 3' },
-  { type: 'youtube', id: '5L4DQfVIklc', title: 'Inspirational Video 4' },
+  { type: 'youtube', id: '6dSFYrj0r8g', title: 'Inspirational Video 1' },
+  { type: 'youtube', id: 'D_wuNE4d250', title: 'Inspirational Video 2' },
+  { type: 'youtube', id: 'AUClUtW6U-0', title: 'Inspirational Video 3' },
+  { type: 'youtube', id: 'Lcf3F4kUmzw', title: 'Inspirational Video 4' },
 ];
 
 const NavLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => {
@@ -86,18 +86,29 @@ const Hero: React.FC<{ onStart: () => void }> = ({ onStart }) => (
       <div className="mt-16 md:mt-24 max-w-6xl mx-auto">
         <div className="grid md:grid-cols-2 gap-8">
           {VIDEOS.map(video => (
-            <div key={video.id} className="bg-black border-4 border-black shadow-[12px_12px_0px_#000]">
-              <div className="aspect-video">
-                <iframe
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${video.id}`}
-                  title={video.title}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                ></iframe>
+            <a
+              key={video.id}
+              href={`https://www.youtube.com/watch?v=${video.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-black border-4 border-black shadow-[12px_12px_0px_#000] group hover:shadow-[16px_16px_0px_#000] transition-all transform hover:translate-y-[-2px]"
+            >
+              <div className="aspect-video relative overflow-hidden">
+                <img
+                  src={`https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`}
+                  alt={video.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = `https://img.youtube.com/vi/${video.id}/hqdefault.jpg`;
+                  }}
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-40 group-hover:bg-opacity-20 transition-all flex items-center justify-center">
+                  <svg className="w-20 h-20 text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

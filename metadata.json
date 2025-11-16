@@ -1,5 +1,7 @@
 {
   "name": "Tumdah AI Studio",
   "description": "An application that uses AI to generate a visual storyboard for a music video from lyrics or a script. Users can customize scenes with character and style reference images, and generate scene previews using Gemini.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "camera"
+  ]
 }
